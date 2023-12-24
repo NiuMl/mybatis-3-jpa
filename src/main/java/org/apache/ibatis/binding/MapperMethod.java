@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import org.apache.ibatis.annotations.Flush;
 import org.apache.ibatis.annotations.MapKey;
+import org.apache.ibatis.binding.jpa.JpaMethod;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -250,6 +251,14 @@ public class MapperMethod {
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName, Class<?> declaringClass,
         Configuration configuration) {
       String statementId = mapperInterface.getName() + "." + methodName;
+      if (configuration.hasStatement(statementId)) {
+        return configuration.getMappedStatement(statementId);
+      }
+      /***
+       * by niuml date:2023/12/20-16:05 增加处理，当走到这的时候就是表明，这个执行的方法，没有xml也没有注解式的sql
+       * 所以，我在这处理一下，自动将方法转换成xml式的sql，加入到configuration中 然后再执行一下获取，这再获取不到别弄了~
+       */
+      JpaMethod.init(mapperInterface, methodName, statementId, configuration);
       if (configuration.hasStatement(statementId)) {
         return configuration.getMappedStatement(statementId);
       }

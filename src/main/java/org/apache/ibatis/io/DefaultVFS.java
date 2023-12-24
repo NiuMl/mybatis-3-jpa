@@ -273,11 +273,7 @@ public class DefaultVFS extends VFS {
 
       // File name might be URL-encoded
       if (!file.exists()) {
-        try {
-          file = new File(URLEncoder.encode(jarUrl.toString(), StandardCharsets.UTF_8.name()));
-        } catch (UnsupportedEncodingException e) {
-          throw new RuntimeException("Unsupported encoding?  UTF-8?  That's impossible.");
-        }
+          file = new File(URLEncoder.encode(jarUrl.toString(), StandardCharsets.UTF_8));
       }
 
       if (file.exists()) {
