@@ -1,3 +1,10 @@
+
+
+- 基于 Mybatis 3.5.16-SNAPSHOT进行增强，实现类似于spring data jpa功能
+- Enhanced based on Mybatis 3.5.16-SNAPSHOT to achieve functionality similar to spring data jpa
+
+
+
 MyBatis SQL Mapper Framework for Java
 =====================================
 
