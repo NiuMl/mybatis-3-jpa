@@ -15,6 +15,9 @@
  */
 package org.apache.ibatis.binding.jpa.processor;
 
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.ibatis.binding.jpa.JpaTable;
 import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
 import org.apache.ibatis.binding.jpa.handler.JpaMethodSelector;
@@ -22,9 +25,6 @@ import org.apache.ibatis.binding.jpa.handler.JpaXml;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;
-
-import java.util.List;
-import java.util.Objects;
 
 /***
  * @author niumengliang Date:2023/12/23 Time:14:44
@@ -47,7 +47,8 @@ public class SpecificSelectProcessor extends ProcessorParent {
     if (Objects.isNull(mn) || mn.length != 2)
       return null;
     ClassReturnTypeAndInput crt = getClassReturnTypeAndInput(mapperInterface, methodName);
-    List<String> attrs = getAttrs(mn[1]);
+    //todo 查询条件切割
+    List<String> attrs = getAttrsNotToLine(mn[1]);
     String whereCondition = getWhereCondition(attrs, crt.getInputs());
 
     String sql = SELECT + getSelectFor(JpaMethodSelector.handlerMethodName(mn[0])) + FROM + jpaTable.value() + WHERE

@@ -15,9 +15,9 @@
  */
 package org.apache.ibatis.binding.jpa.handler;
 
-import org.apache.ibatis.binding.BindingException;
-
 import java.util.Arrays;
+
+import org.apache.ibatis.binding.BindingException;
 
 /***
  * User:niumengliang Date:2023/12/22 Time:16:43

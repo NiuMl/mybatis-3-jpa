@@ -15,14 +15,6 @@
  */
 package org.apache.ibatis.binding.jpa.processor;
 
-import org.apache.ibatis.binding.BindingException;
-import org.apache.ibatis.binding.jpa.StringUtils;
-import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
-import org.apache.ibatis.builder.xml.XMLMapperBuilder;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
-import org.apache.ibatis.session.Configuration;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +26,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+
+import org.apache.ibatis.binding.BindingException;
+import org.apache.ibatis.binding.jpa.StringUtils;
+import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
+import org.apache.ibatis.binding.jpa.processor.wc.WhereConditionEnums;
+import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
+import org.apache.ibatis.session.Configuration;
 
 /***
  * @author niumengliang Date:2023/12/23 Time:14:43
@@ -61,6 +63,9 @@ public abstract class ProcessorParent implements ProcessorInterface {
 
   public static List<String> getAttrs(String str) {
     return Arrays.stream(str.split("And")).map(StringUtils::humpToLine).collect(Collectors.toList());
+  }
+  public static List<String> getAttrsNotToLine(String str) {
+    return Arrays.stream(str.split("And")).collect(Collectors.toList());
   }
 
   protected String getSelectFor(String method) {
@@ -105,7 +110,6 @@ public abstract class ProcessorParent implements ProcessorInterface {
       Arrays.stream(parameters).forEach(a -> {
         Class<?> type = a.getType();
         String name = a.getName();
-        // System.out.println("参数名：" + name + "，类型：" + type.getName());
       });
     }
     return inputs;
@@ -121,11 +125,22 @@ public abstract class ProcessorParent implements ProcessorInterface {
     return crti;
   }
 
+//  private final BiFunction<String,String,String> handlerWhereCondition = (wc, parameter)->{
+//    if(wc.endsWith("NotList")){
+//
+//    }else if(wc.endsWith("Like")){
+//
+//    } else if (wc.endsWith("NotIn")) {
+//
+//    }else if(wc.endsWith("In")){
+//
+//    }
+//  };
+
   protected String getWhereCondition(List<String> attrs, String[] arr) {
     AtomicInteger i = new AtomicInteger();
     return attrs.stream().map(a -> {
-      a = " " + a + " = #{" + arr[i.get()] + "} ";
-      // a = " " + a + " = #{arg" + i.get() + "} ";
+      a = WhereConditionEnums.getWcSql(a,arr[i.get()]);
       i.getAndIncrement();
       return a;
     }).collect(Collectors.joining(AND));

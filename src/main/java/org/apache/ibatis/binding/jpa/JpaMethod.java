@@ -15,13 +15,13 @@
  */
 package org.apache.ibatis.binding.jpa;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.jpa.handler.JpaMethodSelector;
 import org.apache.ibatis.binding.jpa.processor.*;
 import org.apache.ibatis.session.Configuration;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /***
  * @author niumengliang Date:2023/12/20 Time:15:45
