@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.binding.BindingException;
@@ -38,9 +37,6 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;
 
-/***
- * @author niumengliang Date:2023/12/23 Time:14:43
- */
 public abstract class ProcessorParent implements ProcessorInterface {
 
   private static final Log log = LogFactory.getLog(ProcessorParent.class);
@@ -48,8 +44,10 @@ public abstract class ProcessorParent implements ProcessorInterface {
   protected final String SELECT = "select ";
   protected final String FROM = " from ";
   protected final String AND = " and ";
+  protected static final String UP_AND = "AND";
   protected final String WHERE = " where ";
   protected final String BY = "By";
+  protected final String ORDERBY = "OrderBy";
 
   protected String method;
 
@@ -58,14 +56,15 @@ public abstract class ProcessorParent implements ProcessorInterface {
    */
 
   protected String getAttrs(String str, String join) {
-    return Arrays.stream(str.split("And")).map(StringUtils::humpToLine).collect(Collectors.joining(join));
+    return Arrays.stream(str.split(UP_AND)).map(StringUtils::humpToLine).collect(Collectors.joining(join));
   }
 
   public static List<String> getAttrs(String str) {
-    return Arrays.stream(str.split("And")).map(StringUtils::humpToLine).collect(Collectors.toList());
+    return Arrays.stream(str.split(UP_AND)).map(StringUtils::humpToLine).collect(Collectors.toList());
   }
+
   public static List<String> getAttrsNotToLine(String str) {
-    return Arrays.stream(str.split("And")).collect(Collectors.toList());
+    return Arrays.stream(str.split(UP_AND)).collect(Collectors.toList());
   }
 
   protected String getSelectFor(String method) {
@@ -83,17 +82,15 @@ public abstract class ProcessorParent implements ProcessorInterface {
         // 强转
         Class<?> actualTypeArgument = (Class<?>) type;
         // 获取实际参数的类名
-        String name = actualTypeArgument.getName();
-        // System.out.println(methodName + "的返回值类型是参数化类型，其类型为：" + name);
-        return name;
+          // System.out.println(methodName + "的返回值类型是参数化类型，其类型为：" + name);
+        return actualTypeArgument.getName();
       }
     } else {
       // 不是参数化类型,直接获取返回值类型
       Class<?> returnType = method.getReturnType();
       // 获取返回值类型的类名
-      String name = returnType.getName();
-      // System.out.println(methodName + "的返回值类型不是参数化类型其类型为：" + name);
-      return name;
+        // System.out.println(methodName + "的返回值类型不是参数化类型其类型为：" + name);
+      return returnType.getName();
     }
     return null;
   }
@@ -119,7 +116,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
     ClassReturnTypeAndInput crti = new ClassReturnTypeAndInput();
     Method[] methods = c.getMethods();
     Method method = Arrays.stream(methods).filter(a -> a.getName().equals(methodName)).findFirst()
-        .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
+      .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
     crti.setReturnTypeName(getReturnType(method, methodName));
     crti.setInputs(getInputs(method, methodName));
     return crti;
@@ -139,13 +136,18 @@ public abstract class ProcessorParent implements ProcessorInterface {
 
   protected String getWhereCondition(List<String> attrs, String[] arr) {
     AtomicInteger i = new AtomicInteger();
-    return attrs.stream().map(a -> {
-      a = WhereConditionEnums.getWcSql(a,arr[i.get()]);
+    String temp = attrs.stream().map(a -> {
+      a = WhereConditionEnums.getWcSql(a, arr[i.get()]);
       i.getAndIncrement();
       return a;
     }).collect(Collectors.joining(AND));
+    return StringUtils.isEmpty(temp) ? "" : WHERE + temp;
   }
 
+  /***
+   * by niuml
+   * 自实现字符串分隔。
+   */
   protected String[] splitMethod(String str, String target) {
     log.debug("splitMethod:" + str + " target:" + target);
     String[] arr = new String[2];
@@ -164,6 +166,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
         }
         if (b) {
           byE = i + by.length - 1;
+          break;
         }
       }
     }
@@ -177,7 +180,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   protected void parse(String xml, Configuration configuration) {
     try (InputStream inputStream = new ByteArrayInputStream(xml.getBytes())) {
       XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, null,
-          configuration.getSqlFragments());
+        configuration.getSqlFragments());
       mapperParser.parse();
     } catch (IOException e) {
       throw new RuntimeException(e);

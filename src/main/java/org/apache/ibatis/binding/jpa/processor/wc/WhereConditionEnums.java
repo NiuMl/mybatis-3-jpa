@@ -49,7 +49,8 @@ public enum WhereConditionEnums {
   public static String getWcSql(String s,String ss){
     WhereConditionEnums wce = Arrays.stream(WhereConditionEnums.values()).filter(a->s.endsWith(a.wc))
       .findFirst().orElse(EQ);
-    return wce.wcFun.apply(StringUtils.humpToLine(s.substring(0,s.length()-wce.wc.length())),ss);
+    String sb = s.substring(0, s.length()-wce.wc.length());
+    return wce.wcFun.apply(StringUtils.humpToLine(sb),ss);
   }
 
 //  public static void main(String[] args) {
