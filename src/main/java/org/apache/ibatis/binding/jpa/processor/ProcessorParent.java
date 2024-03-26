@@ -22,10 +22,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.binding.BindingException;
@@ -44,7 +44,8 @@ public abstract class ProcessorParent implements ProcessorInterface {
   protected final String SELECT = "select ";
   protected final String FROM = " from ";
   protected final String AND = " and ";
-  protected static final String UP_AND = "AND";
+  protected static final String UP_AND = " And ";
+  protected static final String UP_AND2 = "And";
   protected final String WHERE = " where ";
   protected final String BY = "By";
   protected final String ORDERBY = "OrderBy";
@@ -56,15 +57,22 @@ public abstract class ProcessorParent implements ProcessorInterface {
    */
 
   protected String getAttrs(String str, String join) {
-    return Arrays.stream(str.split(UP_AND)).map(StringUtils::humpToLine).collect(Collectors.joining(join));
+    return Arrays.stream(str.split(UP_AND2)).map(StringUtils::humpToLine).collect(Collectors.joining(join));
   }
 
   public static List<String> getAttrs(String str) {
-    return Arrays.stream(str.split(UP_AND)).map(StringUtils::humpToLine).collect(Collectors.toList());
+    return Arrays.stream(str.split(UP_AND2)).map(StringUtils::humpToLine).collect(Collectors.toList());
   }
 
+
+  /**
+   * 将查询字符串分割成查询字段
+   *
+   * @param str 查询字符串
+   * @return 切割后list
+   */
   public static List<String> getAttrsNotToLine(String str) {
-    return Arrays.stream(str.split(UP_AND)).collect(Collectors.toList());
+    return Arrays.stream(str.split(UP_AND2)).collect(Collectors.toList());
   }
 
   protected String getSelectFor(String method) {
@@ -82,14 +90,14 @@ public abstract class ProcessorParent implements ProcessorInterface {
         // 强转
         Class<?> actualTypeArgument = (Class<?>) type;
         // 获取实际参数的类名
-          // System.out.println(methodName + "的返回值类型是参数化类型，其类型为：" + name);
+        // System.out.println(methodName + "的返回值类型是参数化类型，其类型为：" + name);
         return actualTypeArgument.getName();
       }
     } else {
       // 不是参数化类型,直接获取返回值类型
       Class<?> returnType = method.getReturnType();
       // 获取返回值类型的类名
-        // System.out.println(methodName + "的返回值类型不是参数化类型其类型为：" + name);
+      // System.out.println(methodName + "的返回值类型不是参数化类型其类型为：" + name);
       return returnType.getName();
     }
     return null;
@@ -134,14 +142,26 @@ public abstract class ProcessorParent implements ProcessorInterface {
 //    }
 //  };
 
-  protected String getWhereCondition(List<String> attrs, String[] arr) {
-    AtomicInteger i = new AtomicInteger();
-    String temp = attrs.stream().map(a -> {
-      a = WhereConditionEnums.getWcSql(a, arr[i.get()]);
-      i.getAndIncrement();
-      return a;
-    }).collect(Collectors.joining(AND));
-    return StringUtils.isEmpty(temp) ? "" : WHERE + temp;
+
+  /**
+   * 循环“查询值字段”去匹配“查询字段”
+   *
+   * @param arr   查询值字段
+   * @param attrs 查询字段
+   * @return 拼接好的where
+   */
+  protected String getWhereCondition(String[] arr, List<String> attrs) {
+    List<String> reList = new ArrayList<>();
+    for (int i = 0; i < arr.length; i++) {
+      String s = attrs.get(i);
+      WhereConditionEnums wcle = WhereConditionEnums.getWcSql(s);
+      String ss = wcle.getPlus() > 0 ? arr[i] + "," + arr[i + 1] : arr[i];
+      String sb = s.substring(0, s.length()-wcle.getWc().length());
+      reList.add(wcle.getWcFun().apply(StringUtils.humpToLine(sb), ss));
+      //可能会有一个属性要使用多个参数的时候 比如between
+      i += wcle.getPlus();
+    }
+    return reList.isEmpty() ? "" : WHERE + String.join(UP_AND,reList);
   }
 
   /***

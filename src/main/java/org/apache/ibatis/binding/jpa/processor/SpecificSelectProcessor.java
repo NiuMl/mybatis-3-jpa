@@ -54,10 +54,11 @@ public class SpecificSelectProcessor extends ProcessorParent {
     if (Objects.isNull(mn) || mn.length != 2)
       return null;
     ClassReturnTypeAndInput crt = getClassReturnTypeAndInput(mapperInterface, methodName);
-    //todo 查询条件切割
+    //查询条件切割
     String[] split = mn[1].split(ORDERBY);
     List<String> attrs = getAttrsNotToLine(split[0]);
-    String whereCondition = getWhereCondition(attrs, crt.getInputs());
+//    String whereCondition = getWhereCondition(attrs, crt.getInputs());
+    String whereCondition = getWhereCondition(crt.getInputs(), attrs);
     //order by
     String orderBy = "";
     if (split.length > 1) {
@@ -72,7 +73,7 @@ public class SpecificSelectProcessor extends ProcessorParent {
 
   private String getOrderBy(String str) {
     if (StringUtils.isEmpty(str)) return "";
-    String temp = Arrays.stream(str.split(UP_AND)).map(a -> {
+    String temp = Arrays.stream(str.split(UP_AND2)).map(a -> {
       String pix = "";
       String att = a;
       if (a.endsWith("Asc")) {
