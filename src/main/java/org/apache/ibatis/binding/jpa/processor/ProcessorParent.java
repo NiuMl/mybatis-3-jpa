@@ -161,7 +161,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
       //可能会有一个属性要使用多个参数的时候 比如between
       i += wcle.getPlus();
     }
-    return reList.isEmpty() ? "" : WHERE + String.join(UP_AND,reList);
+    return reList.isEmpty() ? "" : WHERE + String.join(AND,reList);
   }
 
   /***
