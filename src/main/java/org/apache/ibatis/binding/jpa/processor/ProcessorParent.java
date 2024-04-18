@@ -82,7 +82,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   private static String getReturnType(Method method, String methodName) {
     Type genericReturnType = method.getGenericReturnType();
     // 获取实际返回的参数名
-    String returnTypeName = genericReturnType.getTypeName();
+    //  String returnTypeName = genericReturnType.getTypeName();
     // System.out.println(methodName + "的返回参数是：" + returnTypeName);
     if (genericReturnType instanceof ParameterizedType pt) {
       Type[] actualTypeArguments = pt.getActualTypeArguments();
@@ -104,7 +104,6 @@ public abstract class ProcessorParent implements ProcessorInterface {
   }
 
   private static String[] getInputs(Method method, String methodName) {
-
     String[] inputs = new String[0];
     Parameter[] parameters = method.getParameters();
     if (Objects.nonNull(parameters)) {
@@ -112,10 +111,10 @@ public abstract class ProcessorParent implements ProcessorInterface {
       for (int i = 0; i < parameters.length; i++) {
         inputs[i] = parameters[i].getName();
       }
-      Arrays.stream(parameters).forEach(a -> {
-        Class<?> type = a.getType();
-        String name = a.getName();
-      });
+//      Arrays.stream(parameters).forEach(a -> {
+//        Class<?> type = a.getType();
+//        String name = a.getName();
+//      });
     }
     return inputs;
   }
@@ -130,17 +129,6 @@ public abstract class ProcessorParent implements ProcessorInterface {
     return crti;
   }
 
-//  private final BiFunction<String,String,String> handlerWhereCondition = (wc, parameter)->{
-//    if(wc.endsWith("NotList")){
-//
-//    }else if(wc.endsWith("Like")){
-//
-//    } else if (wc.endsWith("NotIn")) {
-//
-//    }else if(wc.endsWith("In")){
-//
-//    }
-//  };
 
 
   /**

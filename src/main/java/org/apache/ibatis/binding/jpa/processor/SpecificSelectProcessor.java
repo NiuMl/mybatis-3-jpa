@@ -55,7 +55,8 @@ public class SpecificSelectProcessor extends ProcessorParent {
       return null;
     ClassReturnTypeAndInput crt = getClassReturnTypeAndInput(mapperInterface, methodName);
     //查询条件切割
-    String[] split = mn[1].split(ORDERBY);
+//    String[] split = mn[1].split(ORDERBY);
+    String[] split = splitMethod(mn[1],ORDERBY);
     List<String> attrs = getAttrsNotToLine(split[0]);
 //    String whereCondition = getWhereCondition(attrs, crt.getInputs());
     String whereCondition = getWhereCondition(crt.getInputs(), attrs);
