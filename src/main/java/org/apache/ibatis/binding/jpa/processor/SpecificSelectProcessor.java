@@ -51,25 +51,24 @@ public class SpecificSelectProcessor extends ProcessorParent {
     if (Objects.isNull(jpaTable))
       return null;
     String[] mn = splitMethod(methodName, BY);
-    if (Objects.isNull(mn) || mn.length != 2)
-      return null;
+    if (Objects.isNull(mn) || mn.length != 2) return null;
     ClassReturnTypeAndInput crt = getClassReturnTypeAndInput(mapperInterface, methodName);
     //查询条件切割
-//    String[] split = mn[1].split(ORDERBY);
     String[] split = splitMethod(mn[1],ORDERBY);
     List<String> attrs = getAttrsNotToLine(split[0]);
-//    String whereCondition = getWhereCondition(attrs, crt.getInputs());
     String whereCondition = getWhereCondition(crt.getInputs(), attrs);
     //order by
     String orderBy = "";
     if (split.length > 1) {
       orderBy = getOrderBy(split[1]);
     }
+    //sql拼接
     String sql = SELECT + getSelectFor(JpaMethodSelector.handlerMethodName(mn[0])) + FROM + jpaTable.value() + whereCondition + orderBy;
-    String xml = JpaXml.assembleSql(methodName, crt.getReturnTypeName(), sql, mapperInterface.getName());
-    System.out.println(xml);
-    parse(xml, configuration);
-    return xml;
+    //生成临时xml
+    String tempXml = JpaXml.assembleSql(methodName, crt.getReturnTypeName(), sql, mapperInterface.getName());
+    System.out.println(tempXml);
+    parse(tempXml, configuration);
+    return tempXml;
   }
 
   private String getOrderBy(String str) {
