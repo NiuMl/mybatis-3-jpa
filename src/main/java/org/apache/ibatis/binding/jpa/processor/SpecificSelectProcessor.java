@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,33 +38,40 @@ public class SpecificSelectProcessor extends ProcessorParent {
 
   /**
    * 将查询方法处理成查询sql
-   * @param mapperInterface mapper类
-   * @param methodName 方法名
-   * @param configuration mybatis的配置类
+   *
+   * @param mapperInterface
+   *          mapper类
+   * @param methodName
+   *          方法名
+   * @param configuration
+   *          mybatis的配置类
+   *
    * @return 生成好的sql
    */
   @Override
   public String process(Class<?> mapperInterface, String methodName, Configuration configuration) {
     log.debug("The current class being processed is " + this.getClass().getName() + " \nThe class to be processed is 【"
-      + mapperInterface.getName() + "】 Method:" + methodName);
+        + mapperInterface.getName() + "】 Method:" + methodName);
     JpaTable jpaTable = mapperInterface.getAnnotation(JpaTable.class);
     if (Objects.isNull(jpaTable))
       return null;
     String[] mn = splitMethod(methodName, BY);
-    if (Objects.isNull(mn) || mn.length != 2) return null;
+    if (Objects.isNull(mn) || mn.length != 2)
+      return null;
     ClassReturnTypeAndInput crt = getClassReturnTypeAndInput(mapperInterface, methodName);
-    //查询条件切割
-    String[] split = splitMethod(mn[1],ORDERBY);
+    // 查询条件切割
+    String[] split = splitMethod(mn[1], ORDERBY);
     List<String> attrs = getAttrsNotToLine(split[0]);
     String whereCondition = getWhereCondition(crt.getInputs(), attrs);
-    //order by
+    // order by
     String orderBy = "";
     if (split.length > 1) {
       orderBy = getOrderBy(split[1]);
     }
-    //sql拼接
-    String sql = SELECT + getSelectFor(JpaMethodSelector.handlerMethodName(mn[0])) + FROM + jpaTable.value() + whereCondition + orderBy;
-    //生成临时xml
+    // sql拼接
+    String sql = SELECT + getSelectFor(JpaMethodSelector.handlerMethodName(mn[0])) + FROM + jpaTable.value()
+        + whereCondition + orderBy;
+    // 生成临时xml
     String tempXml = JpaXml.assembleSql(methodName, crt.getReturnTypeName(), sql, mapperInterface.getName());
     System.out.println(tempXml);
     parse(tempXml, configuration);
@@ -72,7 +79,8 @@ public class SpecificSelectProcessor extends ProcessorParent {
   }
 
   private String getOrderBy(String str) {
-    if (StringUtils.isEmpty(str)) return "";
+    if (StringUtils.isEmpty(str))
+      return "";
     String temp = Arrays.stream(str.split(UP_AND2)).map(a -> {
       String pix = "";
       String att = a;

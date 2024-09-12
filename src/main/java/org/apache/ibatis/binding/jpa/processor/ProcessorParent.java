@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -64,11 +64,12 @@ public abstract class ProcessorParent implements ProcessorInterface {
     return Arrays.stream(str.split(UP_AND2)).map(StringUtils::humpToLine).collect(Collectors.toList());
   }
 
-
   /**
    * 将查询字符串分割成查询字段
    *
-   * @param str 查询字符串
+   * @param str
+   *          查询字符串
+   *
    * @return 切割后list
    */
   public static List<String> getAttrsNotToLine(String str) {
@@ -82,7 +83,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   private static String getReturnType(Method method, String methodName) {
     Type genericReturnType = method.getGenericReturnType();
     // 获取实际返回的参数名
-    //  String returnTypeName = genericReturnType.getTypeName();
+    // String returnTypeName = genericReturnType.getTypeName();
     // System.out.println(methodName + "的返回参数是：" + returnTypeName);
     if (genericReturnType instanceof ParameterizedType pt) {
       Type[] actualTypeArguments = pt.getActualTypeArguments();
@@ -111,10 +112,10 @@ public abstract class ProcessorParent implements ProcessorInterface {
       for (int i = 0; i < parameters.length; i++) {
         inputs[i] = parameters[i].getName();
       }
-//      Arrays.stream(parameters).forEach(a -> {
-//        Class<?> type = a.getType();
-//        String name = a.getName();
-//      });
+      // Arrays.stream(parameters).forEach(a -> {
+      // Class<?> type = a.getType();
+      // String name = a.getName();
+      // });
     }
     return inputs;
   }
@@ -123,19 +124,20 @@ public abstract class ProcessorParent implements ProcessorInterface {
     ClassReturnTypeAndInput crti = new ClassReturnTypeAndInput();
     Method[] methods = c.getMethods();
     Method method = Arrays.stream(methods).filter(a -> a.getName().equals(methodName)).findFirst()
-      .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
+        .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
     crti.setReturnTypeName(getReturnType(method, methodName));
     crti.setInputs(getInputs(method, methodName));
     return crti;
   }
 
-
-
   /**
    * 循环“查询值字段”去匹配“查询字段”
    *
-   * @param arr   查询值字段
-   * @param attrs 查询字段
+   * @param arr
+   *          查询值字段
+   * @param attrs
+   *          查询字段
+   *
    * @return 拼接好的where
    */
   protected String getWhereCondition(String[] arr, List<String> attrs) {
@@ -144,17 +146,16 @@ public abstract class ProcessorParent implements ProcessorInterface {
       String s = attrs.get(i);
       WhereConditionEnums wcle = WhereConditionEnums.getWcSql(s);
       String ss = wcle.getPlus() > 0 ? arr[i] + "," + arr[i + 1] : arr[i];
-      String sb = s.substring(0, s.length()-wcle.getWc().length());
+      String sb = s.substring(0, s.length() - wcle.getWc().length());
       reList.add(wcle.getWcFun().apply(StringUtils.humpToLine(sb), ss));
-      //可能会有一个属性要使用多个参数的时候 比如between
+      // 可能会有一个属性要使用多个参数的时候 比如between
       i += wcle.getPlus();
     }
-    return reList.isEmpty() ? "" : WHERE + String.join(AND,reList);
+    return reList.isEmpty() ? "" : WHERE + String.join(AND, reList);
   }
 
   /***
-   * by niuml
-   * 自实现字符串分隔。
+   * by niuml 自实现字符串分隔。
    */
   protected String[] splitMethod(String str, String target) {
     log.debug("splitMethod:" + str + " target:" + target);
@@ -188,7 +189,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   protected void parse(String xml, Configuration configuration) {
     try (InputStream inputStream = new ByteArrayInputStream(xml.getBytes())) {
       XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, null,
-        configuration.getSqlFragments());
+          configuration.getSqlFragments());
       mapperParser.parse();
     } catch (IOException e) {
       throw new RuntimeException(e);

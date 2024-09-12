@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package org.apache.ibatis.binding.jpa;
 
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -24,11 +27,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 /***
  * @author niumengliang Date:2023/12/22 Time:16:35
@@ -62,9 +63,13 @@ public class StringUtils {
   /**
    * 格式化xml
    *
-   * @param xmlString xml内容
-   * @param indent 向前缩进多少空格
-   * @param ignoreDeclaration 是否忽略描述
+   * @param xmlString
+   *          xml内容
+   * @param indent
+   *          向前缩进多少空格
+   * @param ignoreDeclaration
+   *          是否忽略描述
+   *
    * @return 格式化后的xml
    */
   public static String prettyPrintByTransformer(String xmlString, int indent, boolean ignoreDeclaration) {
