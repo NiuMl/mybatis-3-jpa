@@ -146,7 +146,8 @@ public abstract class ProcessorParent implements ProcessorInterface {
       String s = attrs.get(i);
       WhereConditionEnums wcle = WhereConditionEnums.getWcSql(s);
       String ss = wcle.getPlus() > 0 ? arr[i] + "," + arr[i + 1] : arr[i];
-      String sb = s.substring(0, s.length() - wcle.getWc().length());
+      String sb = s.substring(0,
+          s.length() - (wcle == WhereConditionEnums.EQ ? wcle.getWc().length() - 1 : wcle.getWc().length()));
       reList.add(wcle.getWcFun().apply(StringUtils.humpToLine(sb), ss));
       // 可能会有一个属性要使用多个参数的时候 比如between
       i += wcle.getPlus();
@@ -163,10 +164,12 @@ public abstract class ProcessorParent implements ProcessorInterface {
     char[] by = target.toCharArray();
     char[] charArray = str.toCharArray();
     int byB = 0, byE = 0;
+    char[] tmp = new char[str.length()];
     for (int i = 0; i < charArray.length; i++) {
       boolean b = true;
+      byB = i;
       if (by[0] == charArray[i]) {
-        byB = i;
+        tmp = new char[str.length()];
         for (int i1 = 1; i1 < by.length; i1++) {
           if (charArray.length >= i + i1 && by[i1] != charArray[i + i1]) {
             b = false;
@@ -177,12 +180,19 @@ public abstract class ProcessorParent implements ProcessorInterface {
           byE = i + by.length - 1;
           break;
         }
+      } else {
+        tmp[i] = charArray[i];
       }
     }
-    if ((byB == 0 && byE == 0) || (byB != 0 && byE == 0))
-      return null;
+    // if ((byB == 0 && byE == 0) || (byB != 0 && byE == 0)){
+    // return null;
+    // }
     arr[0] = str.substring(0, byB);
-    arr[1] = str.substring(byE + 1);
+    if (byE == 0) {
+      arr[0] = str.substring(0, byB + 1);
+    }
+    if (byE != 0)
+      arr[1] = str.substring(byE + 1);
     return arr;
   }
 

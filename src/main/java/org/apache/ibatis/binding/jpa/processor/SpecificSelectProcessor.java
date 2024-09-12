@@ -61,11 +61,11 @@ public class SpecificSelectProcessor extends ProcessorParent {
     ClassReturnTypeAndInput crt = getClassReturnTypeAndInput(mapperInterface, methodName);
     // 查询条件切割
     String[] split = splitMethod(mn[1], ORDERBY);
+    String orderBy = "";
     List<String> attrs = getAttrsNotToLine(split[0]);
     String whereCondition = getWhereCondition(crt.getInputs(), attrs);
-    // order by
-    String orderBy = "";
-    if (split.length > 1) {
+    if (split.length > 1 && Objects.nonNull(split[1])) {
+      // order by
       orderBy = getOrderBy(split[1]);
     }
     // sql拼接

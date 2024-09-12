@@ -15,7 +15,6 @@
  */
 package org.apache.ibatis.binding.jpa.processor.wc;
 
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
 /***
@@ -61,7 +60,12 @@ public enum WhereConditionEnums {
   }
 
   public static WhereConditionEnums getWcSql(String s) {
-    return Arrays.stream(WhereConditionEnums.values()).filter(a -> s.endsWith(a.wc)).findFirst().orElse(EQ);
+    for (WhereConditionEnums value : WhereConditionEnums.values()) {
+      if (s.endsWith(value.wc))
+        return value;
+    }
+    return EQ;
+    // return Arrays.stream(WhereConditionEnums.values()).filter(a -> s.endsWith(a.wc)).findFirst().orElse(EQ);
   }
 
   public String getWc() {
