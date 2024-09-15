@@ -21,9 +21,9 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.niuml.UserInfoMapper">
     <select id="selectByNameAndEnforceNum" resultType="com.niuml.UserInfo">
-        select * from hbzf_user.hfd_user_info where user_name = #{s} and enforce_num = #{s1}
+        select * from user_info where user_name = #{s} and enforce_num = #{s1}
     </select>
     <select id="selectListByCityId" resultType="com.niuml.UserInfo">
-        select * from hbzf_user.hfd_user_info where city_id = #{s}
+        select * from user_info where city_id = #{s}
     </select>
 </mapper>
