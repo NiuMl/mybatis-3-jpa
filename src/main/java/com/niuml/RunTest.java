@@ -234,7 +234,7 @@ public class RunTest {
       // List<UserInfo> list = mapper.selectByIdInOrderByIdDescAndUserNameAsc(Arrays.asList(1, 2, 3));
 //      List<UserInfo> list = mapper.selectByIdInAndPositionIdBetweenOrderByIdDescAndUserNameAsc(Arrays.asList(1, 2, 3),
 //          1, 17);
-      // List<UserInfo> list = mapper.selectByIdInAndPositionIdBetween(Arrays.asList(1, 2, 3), 1, 17);
+//       List<UserInfo> list = mapper.selectByIdInAndPositionIdBetween(Arrays.asList(1, 2, 3), 1, 17);
        List<UserInfo> list = mapper.findByOrgId(27);
       System.out.println(list);
 
