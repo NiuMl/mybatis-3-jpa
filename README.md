@@ -6,6 +6,8 @@
 
 测试包：com.niuml.RunTest
 
+打包用 master-clean分支，没有测试类，干净点
+
 
 MyBatis SQL Mapper Framework for Java
 =====================================
