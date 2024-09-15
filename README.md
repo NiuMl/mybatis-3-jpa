@@ -4,6 +4,8 @@
 - Enhanced based on Mybatis 3.5.16-SNAPSHOT to achieve functionality similar to spring data jpa
 
 
+测试包：com.niuml.RunTest
+
 
 MyBatis SQL Mapper Framework for Java
 =====================================
