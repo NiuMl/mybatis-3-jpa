@@ -49,4 +49,6 @@ public interface UserInfoMapper {
   List<UserInfo> selectByIdInAndPositionIdBetween(List<Integer> list, int i, int i1);
 
   List<UserInfo> findByOrgId(int i);
+
+  UserInfo findById(int i);
 }

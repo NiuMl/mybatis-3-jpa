@@ -22,10 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.binding.BindingException;
@@ -198,7 +195,9 @@ public abstract class ProcessorParent implements ProcessorInterface {
 
   protected void parse(String xml, Configuration configuration) {
     try (InputStream inputStream = new ByteArrayInputStream(xml.getBytes())) {
-      XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, null,
+      UUID uuid = UUID.randomUUID();
+      //by niuml 这之所有用了一个uuid，是因为.parse()方法里面有一个检查，如果当前类或者null已被加载过，就忽略了
+      XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, uuid.toString(),
           configuration.getSqlFragments());
       mapperParser.parse();
     } catch (IOException e) {
