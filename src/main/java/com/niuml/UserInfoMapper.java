@@ -51,4 +51,7 @@ public interface UserInfoMapper {
   List<UserInfo> findByOrgId(int i);
 
   UserInfo findById(int i);
+
+  //@Param("ui")
+  void insert(UserInfo userInfo);
 }

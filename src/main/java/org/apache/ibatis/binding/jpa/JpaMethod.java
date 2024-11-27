@@ -41,7 +41,7 @@ public class JpaMethod {
       case UPDATE -> {
         return new SpecificUpdateProcessor();
       }
-      case INSERT, SAVE -> {
+      case INSERT, SAVE,ADD -> {
         return new SpecificInsertProcessor();
       }
     }

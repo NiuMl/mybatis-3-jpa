@@ -35,8 +35,26 @@ public class JpaXml {
       </select>
       """;
 
-  public static String assembleSql(String id, String resultType, String sql, String namespace) {
+  public static final String insert = """
+      <insert id="{id}" keyProperty="id" useGeneratedKeys="true">
+          {sql}
+      </insert>
+      """;
+  public static final String update = """
+      TODO
+      """;
+  public static final String delete = """
+      TODO
+      """;
+
+  //组装查询使用sql语句
+  public static String assembleSelectSql(String id, String resultType, String sql, String namespace) {
     return base.replace("{namespace}", namespace).replace("{method}",
         select.replace("{id}", id).replace("{resultType}", resultType).replace("{sql}", sql));
+  }
+  //组装插入使用sql语句
+  public static String assembleInsetSql(String id, String sql, String namespace) {
+    return base.replace("{namespace}", namespace).replace("{method}",
+      insert.replace("{id}", id).replace("{sql}", sql));
   }
 }

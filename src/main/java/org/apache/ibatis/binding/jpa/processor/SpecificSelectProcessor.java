@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.binding.jpa.JpaTable;
-import org.apache.ibatis.binding.jpa.StringUtils;
+import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
 import org.apache.ibatis.binding.jpa.handler.JpaMethodSelector;
 import org.apache.ibatis.binding.jpa.handler.JpaXml;
@@ -72,8 +72,8 @@ public class SpecificSelectProcessor extends ProcessorParent {
     String sql = SELECT + getSelectFor(JpaMethodSelector.handlerMethodName(mn[0])) + FROM + jpaTable.value()
         + whereCondition + orderBy;
     // 生成临时xml
-    String tempXml = JpaXml.assembleSql(methodName, crt.getReturnTypeName(), sql, mapperInterface.getName());
-    System.out.println(tempXml);
+    String tempXml = JpaXml.assembleSelectSql(methodName, crt.getReturnTypeName(), sql, mapperInterface.getName());
+    log.debug("The current xml sql is " + tempXml);
     parse(tempXml, configuration);
     return tempXml;
   }

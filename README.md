@@ -5,8 +5,19 @@
 
 
 测试包：com.niuml.RunTest
-
 打包用 master-clean分支，没有测试类，干净点
+
+
+## 更新日志
+还是加个日志吧，不然好low
+* by 2024 11 27 增加"新增"操作,这个方法不会解析主动操作后面的语句，比如 xxx.insertXXXByXXX,只解析insert和该方法的第一个入参，其它不解析<br/>
+    使用方式如 xxx.insert()、save、add (Bean) <br/>
+    也可以增加@Param("XXX"),这个注解是mybatis自带的,用了这个，生成的sql会对字段加个别名
+
+
+
+
+
 
 
 MyBatis SQL Mapper Framework for Java
