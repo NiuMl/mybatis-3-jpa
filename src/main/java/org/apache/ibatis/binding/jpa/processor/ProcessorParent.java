@@ -18,15 +18,18 @@ package org.apache.ibatis.binding.jpa.processor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.BindingException;
-import org.apache.ibatis.binding.jpa.StringUtils;
+import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
 import org.apache.ibatis.binding.jpa.processor.wc.WhereConditionEnums;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -39,6 +42,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   private static final Log log = LogFactory.getLog(ProcessorParent.class);
 
   protected final String SELECT = "select ";
+  protected final String INSERT = "insert into ";
   protected final String FROM = " from ";
   protected final String AND = " and ";
   protected static final String UP_AND = " And ";
@@ -64,9 +68,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   /**
    * 将查询字符串分割成查询字段
    *
-   * @param str
-   *          查询字符串
-   *
+   * @param str 查询字符串
    * @return 切割后list
    */
   public static List<String> getAttrsNotToLine(String str) {
@@ -121,7 +123,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
     ClassReturnTypeAndInput crti = new ClassReturnTypeAndInput();
     Method[] methods = c.getMethods();
     Method method = Arrays.stream(methods).filter(a -> a.getName().equals(methodName)).findFirst()
-        .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
+      .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
     crti.setReturnTypeName(getReturnType(method, methodName));
     crti.setInputs(getInputs(method, methodName));
     return crti;
@@ -130,11 +132,8 @@ public abstract class ProcessorParent implements ProcessorInterface {
   /**
    * 循环“查询值字段”去匹配“查询字段”
    *
-   * @param arr
-   *          查询值字段
-   * @param attrs
-   *          查询字段
-   *
+   * @param arr   查询值字段
+   * @param attrs 查询字段
    * @return 拼接好的where
    */
   protected String getWhereCondition(String[] arr, List<String> attrs) {
@@ -144,7 +143,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
       WhereConditionEnums wcle = WhereConditionEnums.getWcSql(s);
       String ss = wcle.getPlus() > 0 ? arr[i] + "," + arr[i + 1] : arr[i];
       String sb = s.substring(0,
-          s.length() - (wcle == WhereConditionEnums.EQ ? wcle.getWc().length() - 1 : wcle.getWc().length()));
+        s.length() - (wcle == WhereConditionEnums.EQ ? wcle.getWc().length() - 1 : wcle.getWc().length()));
       reList.add(wcle.getWcFun().apply(StringUtils.humpToLine(sb), ss));
       // 可能会有一个属性要使用多个参数的时候 比如between
       i += wcle.getPlus();
@@ -198,11 +197,24 @@ public abstract class ProcessorParent implements ProcessorInterface {
       UUID uuid = UUID.randomUUID();
       //by niuml 这之所有用了一个uuid，是因为.parse()方法里面有一个检查，如果当前类或者null已被加载过，就忽略了
       XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, uuid.toString(),
-          configuration.getSqlFragments());
+        configuration.getSqlFragments());
       mapperParser.parse();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  //获取方法的入参别名  主要在插入或者更新的时候使用  by niuml
+  protected String getMethodParameterAnnotations(Method method) {
+    AtomicReference<Param> param = new AtomicReference<>();
+    Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+    Arrays.stream(parameterAnnotations).filter(a->{
+      List<Annotation> collect = Arrays.stream(a).filter(b -> b instanceof Param).toList();
+      return !collect.isEmpty();
+    }).findFirst().ifPresent(a->{
+      param.set((Param) a[0]);
+    });
+    return param.get() == null ? null : param.get().value();
   }
 
 }

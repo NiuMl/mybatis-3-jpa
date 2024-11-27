@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.apache.ibatis.binding.jpa;
+package org.apache.ibatis.binding.jpa.utils;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -38,6 +38,7 @@ public class StringUtils {
 
   private static final Pattern HUMP_PATTERN = Pattern.compile("[A-Z0-9]");
 
+  //驼峰转换sql类型的字段 带有下划线的_
   public static String humpToLine(String str) {
     Matcher matcher = HUMP_PATTERN.matcher(str);
     StringBuilder sb = new StringBuilder();

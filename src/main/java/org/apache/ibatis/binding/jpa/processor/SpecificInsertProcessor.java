@@ -15,16 +15,98 @@
  */
 package org.apache.ibatis.binding.jpa.processor;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.BindingException;
+import org.apache.ibatis.binding.jpa.JpaTable;
+import org.apache.ibatis.binding.jpa.handler.JpaXml;
+import org.apache.ibatis.binding.jpa.processor.annotations.IgnoreField;
+import org.apache.ibatis.binding.jpa.processor.annotations.JpaAlias;
+import org.apache.ibatis.binding.jpa.processor.annotations.JpaId;
+import org.apache.ibatis.binding.jpa.utils.ClassUtil;
+import org.apache.ibatis.binding.jpa.utils.StringUtils;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /***
  * @author niumengliang Date:2023/12/23 Time:14:44
  */
 public class SpecificInsertProcessor extends ProcessorParent {
+  private static final Log log = LogFactory.getLog(SpecificInsertProcessor.class);
 
   @Override
   public String process(Class<?> mapperInterface, String methodName, Configuration configuration) {
-    throw new BindingException("The new methods such as insert or add are not supported");
+    log.debug("The current class being processed is " + this.getClass().getName() + " \nThe class to be processed is 【"
+      + mapperInterface.getName() + "】 Method:" + methodName);
+    JpaTable jpaTable = mapperInterface.getAnnotation(JpaTable.class);
+    if (Objects.isNull(jpaTable))
+      return null;
+    Method[] methods = mapperInterface.getMethods();
+    Method method2 = Arrays.stream(methods).filter(m -> m.getName().equals(methodName))
+      .findFirst().orElseThrow(() -> new BindingException("The new method:" + method + " not find in" + mapperInterface.getName()));
+    //入参对象  只取第一个
+    Class<?> parameterType = method2.getParameterTypes()[0];
+    //找入参的别名  有就用  没有就不用
+    String paramName = getMethodParameterAnnotations(method2);
+
+    //获取所有字段 并过滤掉有标注JpaId和IgnoreField的字段  插入的时候不使用
+    List<Field> allFields = ClassUtil.getAllFields(parameterType).stream().filter(a ->
+        !a.isAnnotationPresent(JpaId.class) && !a.isAnnotationPresent(IgnoreField.class))
+      .toList();
+    //获取插入字段
+    String sqlFields = allFields.stream().map(a -> {
+      if (a.isAnnotationPresent(JpaAlias.class)) {
+        JpaAlias ja = a.getAnnotation(JpaAlias.class);
+        if (Objects.nonNull(ja.value())) {
+          return ja.value();
+        }
+      }
+      return StringUtils.humpToLine(a.getName());
+    }).map(a -> "`" + a + "`").collect(Collectors.joining(","));
+
+    //获取插入值  也就是#{articleTitle}这样的形式
+    String sqlShapValue = allFields.stream().map(a ->{
+      String s = (Objects.isNull(paramName) ? "" : paramName+".") + a.getName();
+      return "#{" + s + "}";
+    }).collect(Collectors.joining(","));
+
+    //sql拼接
+    String sql = INSERT + jpaTable.value() + "(" + sqlFields + ") values(" + sqlShapValue + ")";
+    //临时xml sql
+    String tempXml = JpaXml.assembleInsetSql(methodName, sql,mapperInterface.getName());
+    log.debug("The current xml sql is " + tempXml);
+    parse(tempXml, configuration);
+    return tempXml;
   }
+
+//  public static void main(String[] args) throws ClassNotFoundException {
+//    Class<?> c = Class.forName("com.niuml.UserInfo");
+//    List<Field> allFields = ClassUtil.getAllFields(c);
+//    allFields.forEach(a -> {
+//      System.out.println(a.getName());
+//      JpaId jpa = a.getAnnotation(JpaId.class);
+//      if (Objects.nonNull(jpa)) {
+//        System.out.println(a.getName() + "有 JpaId");
+//      }
+//      IgnoreField igf = a.getAnnotation(IgnoreField.class);
+//      if (Objects.nonNull(igf))
+//        System.out.println(a.getName() + "有 IgnoreField");
+//      JpaAlias ja = a.getAnnotation(JpaAlias.class);
+//      if (Objects.nonNull(ja)) {
+//        System.out.println(a.getName() + "有 JpaAlias");
+//        if (Objects.nonNull(ja.value())) {
+//          System.out.println(a.getName() + "有 JpaAlias value=" + ja.value());
+//        }
+//      }
+//    });
+//  }
 }
