@@ -15,7 +15,6 @@
  */
 package org.apache.ibatis.binding.jpa.processor;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.jpa.JpaTable;
 import org.apache.ibatis.binding.jpa.handler.JpaXml;
@@ -28,13 +27,10 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /***
@@ -42,6 +38,36 @@ import java.util.stream.Collectors;
  */
 public class SpecificInsertProcessor extends ProcessorParent {
   private static final Log log = LogFactory.getLog(SpecificInsertProcessor.class);
+
+
+  private Object[] handlerClassType(Method method2) {
+    //判断是单个保存还是批量的
+    Parameter[] parameters = method2.getParameters();
+    if (parameters.length != 1) return null;
+    Parameter param = parameters[0];
+    Type paramType = param.getParameterizedType();
+    System.out.println(paramType);
+    if (paramType instanceof Class<?>) {
+      System.out.println("单个");
+      return new Object[]{(Class<?>) paramType, param.getName()};
+    } else if (paramType instanceof ParameterizedType pt) {
+      //非单个类的时候，param.getParameterizedType()返回的是ParameterizedTypeImpl这个类，
+      // 这个是jdk自带，1.8之后因为模块化无法直接引入和获取，所以也就无法获取到Type的属性，
+      // 但是ParameterizedTypeImpl又是实现了ParameterizedType这个类，这个是接口类，可以获取到属性  Oj8K
+      System.out.println("集合");
+      Type actualTypeArgument = pt.getActualTypeArguments()[0];
+      System.out.println(actualTypeArgument.getTypeName());
+      Class<?> aClass;
+      try {
+        aClass = Class.forName(actualTypeArgument.getTypeName());
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+      String paramName = getMethodParameterAnnotations(method2);
+      return new Object[]{aClass, Objects.isNull(paramName) ? param.getName() : paramName};
+    }
+    return null;
+  }
 
   @Override
   public String process(Class<?> mapperInterface, String methodName, Configuration configuration) {
@@ -55,6 +81,16 @@ public class SpecificInsertProcessor extends ProcessorParent {
       .findFirst().orElseThrow(() -> new BindingException("The new method:" + method + " not find in" + mapperInterface.getName()));
     //入参对象  只取第一个
     Class<?> parameterType = method2.getParameterTypes()[0];
+    //判断是单个保存还是批量的 是不是集合
+    boolean b = parameterType == List.class;
+    String fieldName = null;
+    if (b) {
+      Object[] tmp = handlerClassType(method2);
+      if (tmp != null) {
+        parameterType = (Class<?>) tmp[0];
+        fieldName = (String) tmp[1];
+      }
+    }
     //找入参的别名  有就用  没有就不用
     String paramName = getMethodParameterAnnotations(method2);
 
@@ -74,21 +110,30 @@ public class SpecificInsertProcessor extends ProcessorParent {
     }).map(a -> "`" + a + "`").collect(Collectors.joining(","));
 
     //获取插入值  也就是#{articleTitle}这样的形式
-    String sqlShapValue = allFields.stream().map(a ->{
-      String s = (Objects.isNull(paramName) ? "" : paramName+".") + a.getName();
+    String sqlShapValue = allFields.stream().map(a -> {
+      String s = b ? "entity." + a.getName() : (Objects.isNull(paramName) ? "" : paramName + ".") + a.getName();
       return "#{" + s + "}";
     }).collect(Collectors.joining(","));
 
     //sql拼接
-    String sql = INSERT + jpaTable.value() + "(" + sqlFields + ") values(" + sqlShapValue + ")";
-    //临时xml sql
-    String tempXml = JpaXml.assembleInsetSql(methodName, sql,mapperInterface.getName());
+    String tempXml = null;
+    if (!b) {
+      String sql = INSERT + jpaTable.value() + "(" + sqlFields + ") values(" + sqlShapValue + ")";
+      //临时xml sql
+      tempXml = JpaXml.assembleInsetSql(methodName, sql, mapperInterface.getName());
+    } else {
+      tempXml = JpaXml.assembleInsetBatchSql(methodName, sqlShapValue, mapperInterface.getName(), fieldName, jpaTable.value(), sqlFields);
+    }
+    System.out.println(tempXml);
     log.debug("The current xml sql is " + tempXml);
     parse(tempXml, configuration);
     return tempXml;
   }
 
 //  public static void main(String[] args) throws ClassNotFoundException {
+//    List<String> list = new ArrayList<>();
+//    Type genericSuperclass = list.getClass().getGenericSuperclass();
+//    System.out.println(genericSuperclass.getTypeName());
 //    Class<?> c = Class.forName("com.niuml.UserInfo");
 //    List<Field> allFields = ClassUtil.getAllFields(c);
 //    allFields.forEach(a -> {

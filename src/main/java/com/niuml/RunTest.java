@@ -248,6 +248,11 @@ public class RunTest {
       mapper.insert(userInfo);
       System.out.println(userInfo);
 
+      mapper.insertBatch(Arrays.asList(userInfo,userInfo));
+      mapper.insertBatch2(Arrays.asList(userInfo,userInfo));
+
+
+
       session.commit();
 
     }
