@@ -74,6 +74,7 @@ public class SpecificSelectProcessor extends ProcessorParent {
     // 生成临时xml
     String tempXml = JpaXml.assembleSelectSql(methodName, crt.getReturnTypeName(), sql, mapperInterface.getName());
     log.debug("The current xml sql is " + tempXml);
+    System.out.println(tempXml);
     parse(tempXml, configuration);
     return tempXml;
   }
