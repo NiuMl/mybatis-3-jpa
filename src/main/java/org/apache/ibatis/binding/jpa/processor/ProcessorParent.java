@@ -153,6 +153,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
 
   /***
    * by niuml 自实现字符串分隔。
+   * MD 写的时候我和上帝都知道这是写的啥玩意，现在只有上帝知道  2024 11 29
    */
   protected String[] splitMethod(String str, String target) {
     log.debug("splitMethod:" + str + " target:" + target);
@@ -217,4 +218,32 @@ public abstract class ProcessorParent implements ProcessorInterface {
     return param.get() == null ? null : param.get().value();
   }
 
+  protected Object[] getParameterType(Method method2) {
+    //判断是单个保存还是批量的
+    Parameter[] parameters = method2.getParameters();
+    if (parameters.length != 1) return null;
+    Parameter param = parameters[0];
+    Type paramType = param.getParameterizedType();
+    System.out.println(paramType);
+    if (paramType instanceof Class<?>) {
+      //System.out.println("单个");
+      return new Object[]{(Class<?>) paramType, param.getName()};
+    } else if (paramType instanceof ParameterizedType pt) {
+      //非单个类的时候，param.getParameterizedType()返回的是ParameterizedTypeImpl这个类，
+      // 这个是jdk自带，1.8之后因为模块化无法直接引入和获取，所以也就无法获取到Type的属性，
+      // 但是ParameterizedTypeImpl又是实现了ParameterizedType这个类，这个是接口类，可以获取到属性  Oj8K
+      //System.out.println("集合");
+      Type actualTypeArgument = pt.getActualTypeArguments()[0];
+      System.out.println(actualTypeArgument.getTypeName());
+      Class<?> aClass;
+      try {
+        aClass = Class.forName(actualTypeArgument.getTypeName());
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+      String paramName = getMethodParameterAnnotations(method2);
+      return new Object[]{aClass, Objects.isNull(paramName) ? param.getName() : paramName};
+    }
+    return null;
+  }
 }
