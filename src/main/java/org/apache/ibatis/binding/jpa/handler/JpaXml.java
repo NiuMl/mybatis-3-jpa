@@ -49,7 +49,18 @@ public class JpaXml {
     </insert>
     """;
   public static final String update = """
-    TODO
+    <update id="{id}">
+        update {tableName}
+        <set>
+          {ifCon}
+        </set>
+        where {ConditionWhere}
+    </update>
+    """;
+  public static final String tempUpdate = """
+      <if test="{condition}">
+        {cd}
+      </if>
     """;
   public static final String delete = """
     TODO
@@ -74,5 +85,15 @@ public class JpaXml {
           .replace("{entities}", entities)
           .replace("{fields}", fields)
           .replace("{id}", id).replace("{sql}", sql));
+  }
+
+  public static String assembleTempUpdateSql(String condition, String cd) {
+    return tempUpdate.replace("{condition}", condition).replace("{cd}", cd);
+  }
+
+  public static String assembleUpdateSql(String id, String tableName, String ifCon, String namespace,String conditionWhere) {
+    return base.replace("{namespace}", namespace).replace("{method}",
+      update.replace("{id}",id).replace("{tableName}", tableName)
+        .replace("{ifCon}", ifCon).replace("{ConditionWhere}", conditionWhere));
   }
 }

@@ -248,10 +248,14 @@ public class RunTest {
       mapper.insert(userInfo);
       System.out.println(userInfo);
 
-      mapper.insertBatch(Arrays.asList(userInfo,userInfo));
-      mapper.insertBatch2(Arrays.asList(userInfo,userInfo));
-
-
+//      mapper.insertBatch(Arrays.asList(userInfo,userInfo));
+//      mapper.insertBatch2(Arrays.asList(userInfo,userInfo));
+//      userInfo.setUserName("修改6666");
+//      mapper.update(userInfo);
+//      userInfo.setUserName("修改66662222");
+//      mapper.update2(userInfo);
+      userInfo.setUserName("修改66662222");
+      mapper.update3(Arrays.asList(userInfo));
 
       session.commit();
 

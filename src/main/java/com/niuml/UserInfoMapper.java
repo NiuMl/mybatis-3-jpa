@@ -58,4 +58,9 @@ public interface UserInfoMapper {
   void insertBatch(List<UserInfo> list);
 
   void insertBatch2(@Param("saveList") List<UserInfo> list);
+
+  void update(UserInfo userInfo);
+
+  void update2(@Param("ui") UserInfo userInfo);
+  void update3(List<UserInfo> userInfo);
 }
