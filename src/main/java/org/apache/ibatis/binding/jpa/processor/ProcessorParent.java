@@ -111,15 +111,11 @@ public abstract class ProcessorParent implements ProcessorInterface {
       for (int i = 0; i < parameters.length; i++) {
         inputs[i] = parameters[i].getName();
       }
-      // Arrays.stream(parameters).forEach(a -> {
-      // Class<?> type = a.getType();
-      // String name = a.getName();
-      // });
     }
     return inputs;
   }
 
-  public static ClassReturnTypeAndInput getClassReturnTypeAndInput(Class c, String methodName) {
+  public static ClassReturnTypeAndInput getClassReturnTypeAndInput(Class<?> c, String methodName) {
     ClassReturnTypeAndInput crti = new ClassReturnTypeAndInput();
     Method[] methods = c.getMethods();
     Method method = Arrays.stream(methods).filter(a -> a.getName().equals(methodName)).findFirst()
@@ -212,9 +208,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
     Arrays.stream(parameterAnnotations).filter(a->{
       List<Annotation> collect = Arrays.stream(a).filter(b -> b instanceof Param).toList();
       return !collect.isEmpty();
-    }).findFirst().ifPresent(a->{
-      param.set((Param) a[0]);
-    });
+    }).findFirst().ifPresent(a-> param.set((Param) a[0]));
     return param.get() == null ? null : param.get().value();
   }
 
@@ -227,7 +221,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
     System.out.println(paramType);
     if (paramType instanceof Class<?>) {
       //System.out.println("单个");
-      return new Object[]{(Class<?>) paramType, param.getName()};
+      return new Object[]{paramType, param.getName()};
     } else if (paramType instanceof ParameterizedType pt) {
       //非单个类的时候，param.getParameterizedType()返回的是ParameterizedTypeImpl这个类，
       // 这个是jdk自带，1.8之后因为模块化无法直接引入和获取，所以也就无法获取到Type的属性，
@@ -246,4 +240,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
     }
     return null;
   }
+
+
+
 }

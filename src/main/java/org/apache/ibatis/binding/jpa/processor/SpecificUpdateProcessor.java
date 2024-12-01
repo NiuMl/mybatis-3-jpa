@@ -57,7 +57,7 @@ public class SpecificUpdateProcessor extends ProcessorParent {
     if (parameters.length != 1) return null;
     Parameter param = parameters[0];
     Type paramType = param.getParameterizedType();
-    //判断入参类型 如果不是类  就直接报错得了，这个类指的是普通类，不是list map 啥的
+    //判断入参类型 如果不是类  就直接报错得了，这个类指的是普通类，不是list map 啥的,更新只更新一个
     if(!(paramType instanceof Class<?> paramClass)){
       throw new BindingException("the class:"+mapperInterface.getName()+"  method:"+methodName+"  param:"+param.getName()+" must be a class");
     }

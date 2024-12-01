@@ -63,4 +63,17 @@ public interface UserInfoMapper {
 
   void update2(@Param("ui") UserInfo userInfo);
   void update3(List<UserInfo> userInfo);
+
+  void delete(UserInfo userInfo);
+
+  void delete2(int i);
+  void delete3(Long i);
+
+  void delete4(UserInfo userInfo);
+
+  void deleteById(int i);
+
+  void deleteByIdAndUserNameLike(int i, String xiao);
+
+  void deleteByUserNameLikeAndRealName(String number, String 肖宝元);
 }

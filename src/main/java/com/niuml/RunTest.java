@@ -252,10 +252,18 @@ public class RunTest {
 //      mapper.insertBatch2(Arrays.asList(userInfo,userInfo));
 //      userInfo.setUserName("修改6666");
 //      mapper.update(userInfo);
-//      userInfo.setUserName("修改66662222");
-//      mapper.update2(userInfo);
       userInfo.setUserName("修改66662222");
-      mapper.update3(Arrays.asList(userInfo));
+      mapper.update2(userInfo);
+//      userInfo.setUserName("修改66662222");
+//      mapper.update3(Arrays.asList(userInfo));
+//      mapper.delete(userInfo);
+//      mapper.delete2(1);
+//      mapper.delete3(1l);
+//      mapper.delete4(userInfo);
+//      mapper.deleteById(1);
+//      mapper.deleteByIdAndUserNameLike(1,"66");
+
+      mapper.deleteByUserNameLikeAndRealName("66","肖宝元");
 
       session.commit();
 

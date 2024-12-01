@@ -24,8 +24,8 @@ public enum WhereConditionEnums {
 
   EQ("-", (s, ss) -> " " + s + " = #{" + ss + "} ", 0),
   NOT_EQ("Not", (s, ss) -> " " + s + " <![CDATA[ <>  ]]> #{" + ss + "} ", 0),
-  NOT_LIKE("NotLike", (s, ss) -> " " + s + " not like CONCAT('%',#{" + ss + "},'%' ", 0),
-  LIKE("Like", (s, ss) -> " " + s + " like CONCAT('%',#{" + ss + "},'%' ", 0),
+  NOT_LIKE("NotLike", (s, ss) -> " " + s + " not like CONCAT('%',#{" + ss + "},'%' )", 0),
+  LIKE("Like", (s, ss) -> " " + s + " like CONCAT('%',#{" + ss + "},'%' )", 0),
   IS_NOT_NULL("IsNotNull", (s, ss) -> " " + s + " is not null ", 0),
   LESS_THAN("LessThan", (s, ss) -> " " + s + " <![CDATA[ < ]]> #{" + ss + "}", 0),
   LESS_THAN_EQUAL("LessThanEqual", (s, ss) -> " " + s + " <![CDATA[ <= ]]> #{" + ss + "}", 0),

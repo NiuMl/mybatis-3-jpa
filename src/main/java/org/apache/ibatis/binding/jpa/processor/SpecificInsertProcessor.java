@@ -89,7 +89,7 @@ public class SpecificInsertProcessor extends ProcessorParent {
     }).collect(Collectors.joining(","));
 
     //sql拼接
-    String tempXml = null;
+    String tempXml;
     if (!b) {
       String sql = INSERT + jpaTable.value() + "(" + sqlFields + ") values(" + sqlShapValue + ")";
       //临时xml sql
