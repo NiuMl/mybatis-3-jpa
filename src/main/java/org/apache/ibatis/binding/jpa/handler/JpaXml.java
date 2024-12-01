@@ -63,7 +63,9 @@ public class JpaXml {
       </if>
     """;
   public static final String delete = """
-    TODO
+    <delete id="{id}">
+      delete from {tableName}  {ConditionWhere}
+    </delete>
     """;
 
   //组装查询使用sql语句
@@ -96,4 +98,11 @@ public class JpaXml {
       update.replace("{id}",id).replace("{tableName}", tableName)
         .replace("{ifCon}", ifCon).replace("{ConditionWhere}", conditionWhere));
   }
+
+  public static String assembleDeleteSql(String id, String tableName, String namespace,String conditionWhere) {
+    return base.replace("{namespace}", namespace).replace("{method}",
+      delete.replace("{id}", id).replace("{tableName}",
+        tableName).replace("{ConditionWhere}", conditionWhere));
+  }
+
 }

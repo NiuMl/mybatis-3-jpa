@@ -21,4 +21,15 @@ public class ClassUtil {
     return fieldList.stream().filter(a->!a.getName().equals("serialVersionUID")).collect(Collectors.toList());
   }
 
+  //判断是不是基本类型和其对应的包装类
+  public static boolean judgeClassType(Class<?> o ){
+    return o.isPrimitive()
+      || o == Byte.class
+      || o == Short.class
+      || o == Integer.class
+      || o == Long.class
+      || o == Float.class
+      || o == Double.class
+      || o == Boolean.class;
+  }
 }
