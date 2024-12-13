@@ -15,13 +15,11 @@
  */
 package com.niuml;
 
-import org.apache.ibatis.binding.jpa.processor.annotations.IgnoreField;
-import org.apache.ibatis.binding.jpa.processor.annotations.JpaAlias;
-import org.apache.ibatis.binding.jpa.processor.annotations.JpaId;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
+
+import org.apache.ibatis.binding.jpa.processor.annotations.JpaId;
 
 public class UserInfo implements Serializable {
 
@@ -35,12 +33,12 @@ public class UserInfo implements Serializable {
   /**
   *
   */
-//  @IgnoreField
+  // @IgnoreField
   private String userName;
   /**
   *
   */
-//  @JpaAlias("real_name666")
+  // @JpaAlias("real_name666")
   private String realName;
   /**
   *

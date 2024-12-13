@@ -21,10 +21,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.binding.jpa.JpaTable;
-import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
 import org.apache.ibatis.binding.jpa.handler.JpaMethodSelector;
 import org.apache.ibatis.binding.jpa.handler.JpaXml;
+import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;

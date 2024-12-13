@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.BindingException;
-import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.binding.jpa.handler.ClassReturnTypeAndInput;
 import org.apache.ibatis.binding.jpa.processor.wc.WhereConditionEnums;
+import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -68,7 +68,9 @@ public abstract class ProcessorParent implements ProcessorInterface {
   /**
    * 将查询字符串分割成查询字段
    *
-   * @param str 查询字符串
+   * @param str
+   *          查询字符串
+   *
    * @return 切割后list
    */
   public static List<String> getAttrsNotToLine(String str) {
@@ -109,7 +111,9 @@ public abstract class ProcessorParent implements ProcessorInterface {
     if (Objects.nonNull(parameters)) {
       inputs = new String[parameters.length];
       for (int i = 0; i < parameters.length; i++) {
-        inputs[i] = parameters[i].getName();
+        Param alien = parameters[i].getAnnotation(Param.class);
+        inputs[i] = (Objects.isNull(alien) || Objects.isNull(alien.value()) || alien.value().isEmpty())
+            ? parameters[i].getName() : alien.value();
       }
     }
     return inputs;
@@ -119,7 +123,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
     ClassReturnTypeAndInput crti = new ClassReturnTypeAndInput();
     Method[] methods = c.getMethods();
     Method method = Arrays.stream(methods).filter(a -> a.getName().equals(methodName)).findFirst()
-      .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
+        .orElseThrow(() -> new BindingException("The method (" + methodName + ") is not exist!"));
     crti.setReturnTypeName(getReturnType(method, methodName));
     crti.setInputs(getInputs(method, methodName));
     return crti;
@@ -128,8 +132,11 @@ public abstract class ProcessorParent implements ProcessorInterface {
   /**
    * 循环“查询值字段”去匹配“查询字段”
    *
-   * @param arr   查询值字段
-   * @param attrs 查询字段
+   * @param arr
+   *          查询值字段
+   * @param attrs
+   *          查询字段
+   *
    * @return 拼接好的where
    */
   protected String getWhereCondition(String[] arr, List<String> attrs) {
@@ -139,7 +146,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
       WhereConditionEnums wcle = WhereConditionEnums.getWcSql(s);
       String ss = wcle.getPlus() > 0 ? arr[i] + "," + arr[i + 1] : arr[i];
       String sb = s.substring(0,
-        s.length() - (wcle == WhereConditionEnums.EQ ? wcle.getWc().length() - 1 : wcle.getWc().length()));
+          s.length() - (wcle == WhereConditionEnums.EQ ? wcle.getWc().length() - 1 : wcle.getWc().length()));
       reList.add(wcle.getWcFun().apply(StringUtils.humpToLine(sb), ss));
       // 可能会有一个属性要使用多个参数的时候 比如between
       i += wcle.getPlus();
@@ -148,8 +155,7 @@ public abstract class ProcessorParent implements ProcessorInterface {
   }
 
   /***
-   * by niuml 自实现字符串分隔。
-   * MD 写的时候我和上帝都知道这是写的啥玩意，现在只有上帝知道  2024 11 29
+   * by niuml 自实现字符串分隔。 MD 写的时候我和上帝都知道这是写的啥玩意，现在只有上帝知道 2024 11 29
    */
   protected String[] splitMethod(String str, String target) {
     log.debug("splitMethod:" + str + " target:" + target);
@@ -192,41 +198,42 @@ public abstract class ProcessorParent implements ProcessorInterface {
   protected void parse(String xml, Configuration configuration) {
     try (InputStream inputStream = new ByteArrayInputStream(xml.getBytes())) {
       UUID uuid = UUID.randomUUID();
-      //by niuml 这之所有用了一个uuid，是因为.parse()方法里面有一个检查，如果当前类或者null已被加载过，就忽略了
+      // by niuml 这之所有用了一个uuid，是因为.parse()方法里面有一个检查，如果当前类或者null已被加载过，就忽略了
       XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, uuid.toString(),
-        configuration.getSqlFragments());
+          configuration.getSqlFragments());
       mapperParser.parse();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  //获取方法的入参别名  主要在插入或者更新的时候使用  by niuml
+  // 获取方法的入参别名 主要在插入或者更新的时候使用 by niuml
   protected String getMethodParameterAnnotations(Method method) {
     AtomicReference<Param> param = new AtomicReference<>();
     Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-    Arrays.stream(parameterAnnotations).filter(a->{
+    Arrays.stream(parameterAnnotations).filter(a -> {
       List<Annotation> collect = Arrays.stream(a).filter(b -> b instanceof Param).toList();
       return !collect.isEmpty();
-    }).findFirst().ifPresent(a-> param.set((Param) a[0]));
+    }).findFirst().ifPresent(a -> param.set((Param) a[0]));
     return param.get() == null ? null : param.get().value();
   }
 
   protected Object[] getParameterType(Method method2) {
-    //判断是单个保存还是批量的
+    // 判断是单个保存还是批量的
     Parameter[] parameters = method2.getParameters();
-    if (parameters.length != 1) return null;
+    if (parameters.length != 1)
+      return null;
     Parameter param = parameters[0];
     Type paramType = param.getParameterizedType();
     System.out.println(paramType);
     if (paramType instanceof Class<?>) {
-      //System.out.println("单个");
-      return new Object[]{paramType, param.getName()};
+      // System.out.println("单个");
+      return new Object[] { paramType, param.getName() };
     } else if (paramType instanceof ParameterizedType pt) {
-      //非单个类的时候，param.getParameterizedType()返回的是ParameterizedTypeImpl这个类，
+      // 非单个类的时候，param.getParameterizedType()返回的是ParameterizedTypeImpl这个类，
       // 这个是jdk自带，1.8之后因为模块化无法直接引入和获取，所以也就无法获取到Type的属性，
-      // 但是ParameterizedTypeImpl又是实现了ParameterizedType这个类，这个是接口类，可以获取到属性  Oj8K
-      //System.out.println("集合");
+      // 但是ParameterizedTypeImpl又是实现了ParameterizedType这个类，这个是接口类，可以获取到属性 Oj8K
+      // System.out.println("集合");
       Type actualTypeArgument = pt.getActualTypeArguments()[0];
       System.out.println(actualTypeArgument.getTypeName());
       Class<?> aClass;
@@ -236,11 +243,9 @@ public abstract class ProcessorParent implements ProcessorInterface {
         throw new RuntimeException(e);
       }
       String paramName = getMethodParameterAnnotations(method2);
-      return new Object[]{aClass, Objects.isNull(paramName) ? param.getName() : paramName};
+      return new Object[] { aClass, Objects.isNull(paramName) ? param.getName() : paramName };
     }
     return null;
   }
-
-
 
 }

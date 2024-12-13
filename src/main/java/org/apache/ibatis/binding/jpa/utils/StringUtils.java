@@ -38,7 +38,7 @@ public class StringUtils {
 
   private static final Pattern HUMP_PATTERN = Pattern.compile("[A-Z0-9]");
 
-  //驼峰转换sql类型的字段 带有下划线的_
+  // 驼峰转换sql类型的字段 带有下划线的_
   public static String humpToLine(String str) {
     Matcher matcher = HUMP_PATTERN.matcher(str);
     StringBuilder sb = new StringBuilder();

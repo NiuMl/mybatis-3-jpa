@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.binding.jpa.handler.JpaMethodSelector;
+import org.apache.ibatis.binding.jpa.utils.StringUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -232,38 +232,39 @@ public class RunTest {
       // System.out.println(blog);
 
       // List<UserInfo> list = mapper.selectByIdInOrderByIdDescAndUserNameAsc(Arrays.asList(1, 2, 3));
-//      List<UserInfo> list = mapper.selectByIdInAndPositionIdBetweenOrderByIdDescAndUserNameAsc(Arrays.asList(1, 2, 3),
-//          1, 17);
-//       List<UserInfo> list = mapper.selectByIdInAndPositionIdBetween(Arrays.asList(1, 2, 3), 1, 17);
-//      List<UserInfo> list = mapper.findByOrgId(27);
-//      System.out.println(list);
-//      List<UserInfo> list2 = mapper.selectByIdIn(Arrays.asList(1, 2, 3));
-//      System.out.println(list2);
+      // List<UserInfo> list = mapper.selectByIdInAndPositionIdBetweenOrderByIdDescAndUserNameAsc(Arrays.asList(1, 2,
+      // 3),
+      // 1, 17);
+      // List<UserInfo> list = mapper.selectByIdInAndPositionIdBetween(Arrays.asList(1, 2, 3), 1, 17);
+      // List<UserInfo> list = mapper.findByOrgId(27);
+      // System.out.println(list);
+      // List<UserInfo> list2 = mapper.selectByIdIn(Arrays.asList(1, 2, 3));
+      // System.out.println(list2);
 
       UserInfo userInfo = mapper.findById(1);
       System.out.println(userInfo);
 
       userInfo.setId(null);
-      //新增使用
+      // 新增使用
       mapper.insert(userInfo);
       System.out.println(userInfo);
 
-//      mapper.insertBatch(Arrays.asList(userInfo,userInfo));
-//      mapper.insertBatch2(Arrays.asList(userInfo,userInfo));
-//      userInfo.setUserName("修改6666");
-//      mapper.update(userInfo);
+      // mapper.insertBatch(Arrays.asList(userInfo,userInfo));
+      // mapper.insertBatch2(Arrays.asList(userInfo,userInfo));
+      // userInfo.setUserName("修改6666");
+      // mapper.update(userInfo);
       userInfo.setUserName("修改66662222");
       mapper.update2(userInfo);
-//      userInfo.setUserName("修改66662222");
-//      mapper.update3(Arrays.asList(userInfo));
-//      mapper.delete(userInfo);
-//      mapper.delete2(1);
-//      mapper.delete3(1l);
-//      mapper.delete4(userInfo);
-//      mapper.deleteById(1);
-//      mapper.deleteByIdAndUserNameLike(1,"66");
+      // userInfo.setUserName("修改66662222");
+      // mapper.update3(Arrays.asList(userInfo));
+      // mapper.delete(userInfo);
+      // mapper.delete2(1);
+      // mapper.delete3(1l);
+      // mapper.delete4(userInfo);
+      // mapper.deleteById(1);
+      // mapper.deleteByIdAndUserNameLike(1,"66");
 
-      mapper.deleteByUserNameLikeAndRealName("66","肖宝元");
+      mapper.deleteByUserNameLikeAndRealName("66", "肖宝元");
 
       session.commit();
 

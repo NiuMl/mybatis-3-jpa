@@ -52,7 +52,7 @@ public interface UserInfoMapper {
 
   UserInfo findById(int i);
 
-  //@Param("ui")
+  // @Param("ui")
   void insert(UserInfo userInfo);
 
   void insertBatch(List<UserInfo> list);
@@ -62,11 +62,13 @@ public interface UserInfoMapper {
   void update(UserInfo userInfo);
 
   void update2(@Param("ui") UserInfo userInfo);
+
   void update3(List<UserInfo> userInfo);
 
   void delete(UserInfo userInfo);
 
   void delete2(int i);
+
   void delete3(Long i);
 
   void delete4(UserInfo userInfo);
